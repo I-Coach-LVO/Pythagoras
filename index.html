@@ -2,22 +2,50 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Stelling van Pythagoras</title>
   <link rel="icon" href="favicon.ico" sizes="any">
   <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --lvo-cyan: #3fc0f0;
+      --lvo-purple: #831f82;
+      --lvo-magenta: #e6007e;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f0f8ff;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 28px 16px;
+      color: #24384b;
+      background: #edf5fb;
     }
     
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: clamp(18px, 4vw, 36px);
+      border: 1px solid #dbe6ef;
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(38, 72, 101, 0.11);
+    }
+
+    .intro {
+      max-width: 650px;
+      margin: 0 auto 24px;
+      text-align: center;
+    }
+
+    .formula-badge {
+      display: inline-block;
+      padding: 7px 12px;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      color: var(--lvo-purple);
+      background: rgba(63, 192, 240, .16);
+      font-weight: 800;
     }
     
     .mode-selector {
@@ -36,39 +64,50 @@
       background-color: #f9f9f9;
       transition: all 0.2s;
     }
+
+    button.mode-button { font: inherit; }
+    .mode-button:focus-visible, input:focus-visible {
+      outline: 3px solid rgba(52, 152, 219, .35);
+      outline-offset: 2px;
+    }
     
     .mode-button.active {
-      background-color: #3498db;
+      background-color: var(--lvo-purple);
       color: white;
       border-color: #2980b9;
     }
     
     .mode-button.a-mode.active {
-      background-color: #e74c3c;
-      border-color: #c0392b;
+      color: #17384a;
+      background-color: var(--lvo-cyan);
+      border-color: var(--lvo-cyan);
     }
     
     .mode-button.b-mode.active {
-      background-color: #3498db;
-      border-color: #2980b9;
+      background-color: var(--lvo-purple);
+      border-color: var(--lvo-purple);
     }
     
     .mode-button.c-mode.active {
-      background-color: #2ecc71;
-      border-color: #27ae60;
+      background-color: var(--lvo-magenta);
+      border-color: var(--lvo-magenta);
     }
     
     .controls {
-      display: flex;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       margin-bottom: 20px;
-      justify-content: center;
     }
     
     .control-group {
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 14px 12px;
+      border: 1px solid #e2eaf1;
+      border-radius: 12px;
+      background: #fbfdff;
     }
     
     .slider-container {
@@ -84,20 +123,28 @@
     
     .canvas-container {
       width: 100%;
-      height: 400px;
+      height: auto;
+      aspect-ratio: 750 / 400;
       margin: 20px 0;
       position: relative;
+      overflow: hidden;
+      border: 1px solid #dce5ec;
+      border-radius: 12px;
+      background: white;
     }
     
     canvas {
-      border: 1px solid #ccc;
+      display: block;
+      width: 100%;
+      height: 100%;
       background: white;
     }
     
     .formula {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 8px;
+      background-color: #f7fafc;
+      padding: clamp(16px, 3vw, 24px);
+      border: 1px solid #dfe8ef;
+      border-radius: 14px;
       margin-top: 20px;
     }
     
@@ -119,9 +166,9 @@
       font-family: monospace;
     }
     
-    .value-a { background-color: rgba(231, 76, 60, 0.2); }
-    .value-b { background-color: rgba(52, 152, 219, 0.2); }
-    .value-c { background-color: rgba(46, 204, 113, 0.2); }
+    .value-a { background-color: rgba(63, 192, 240, .24); }
+    .value-b { background-color: rgba(131, 31, 130, .18); }
+    .value-c { background-color: rgba(230, 0, 126, .17); }
     
     h1, h2, h3 {
       color: #2c3e50;
@@ -133,18 +180,32 @@
       margin: 15px 0;
       color: #7f8c8d;
     }
+
+    @media (max-width: 650px) {
+      body { padding: 10px; }
+      .container { border-radius: 12px; }
+      .mode-selector, .controls { grid-template-columns: 1fr; }
+      .mode-selector { display: grid; }
+      .mode-button { width: 100%; }
+      .control-group { align-items: stretch; }
+      .slider-container { justify-content: space-between; }
+      input[type="range"] { width: min(62%, 260px); }
+      .formula-step h3 { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Stelling van Pythagoras</h1>
-    
-    <p class="instruction">Klik op de zijde die je wilt berekenen (de andere twee zijden kun je aanpassen)</p>
+    <div class="intro">
+      <span class="formula-badge">a² + b² = c²</span>
+      <h1>Stelling van Pythagoras</h1>
+      <p class="instruction">Kies de zijde die je wilt berekenen. Stel daarna de twee bekende zijden in.</p>
+    </div>
     
     <div class="mode-selector">
-      <div class="mode-button a-mode" id="a-mode">Bereken zijde a</div>
-      <div class="mode-button b-mode" id="b-mode">Bereken zijde b</div>
-      <div class="mode-button c-mode active" id="c-mode">Bereken zijde c</div>
+      <button type="button" class="mode-button a-mode" id="a-mode" aria-pressed="false">Bereken zijde a</button>
+      <button type="button" class="mode-button b-mode" id="b-mode" aria-pressed="false">Bereken zijde b</button>
+      <button type="button" class="mode-button c-mode active" id="c-mode" aria-pressed="true">Bereken zijde c</button>
     </div>
     
     <div class="controls">
@@ -152,7 +213,7 @@
         <h3>Zijde a</h3>
         <div class="slider-container">
           <span id="value-a">3.0</span> cm
-          <input type="range" id="side-a" min="1" max="10" value="3" step="0.1">
+          <input type="range" id="side-a" min="1" max="10" value="3" step="0.1" aria-label="Lengte van zijde a in centimeter">
         </div>
       </div>
       
@@ -160,7 +221,7 @@
         <h3>Zijde b</h3>
         <div class="slider-container">
           <span id="value-b">4.0</span> cm
-          <input type="range" id="side-b" min="1" max="10" value="4" step="0.1">
+          <input type="range" id="side-b" min="1" max="10" value="4" step="0.1" aria-label="Lengte van zijde b in centimeter">
         </div>
       </div>
       
@@ -168,7 +229,7 @@
         <h3>Zijde c</h3>
         <div class="slider-container">
           <span id="value-c">5.0</span> cm
-          <input type="range" id="side-c" min="1" max="14" value="5" step="0.1">
+          <input type="range" id="side-c" min="1" max="14" value="5" step="0.1" aria-label="Lengte van zijde c in centimeter">
         </div>
       </div>
     </div>
@@ -244,11 +305,6 @@
     // Berekeningsmode
     let calculationMode = 'c'; // 'a', 'b', 'c'
     
-    // Schaal en offset voor tekenen
-    const scale = 30;
-    const offsetX = 100;
-    const offsetY = 250;
-    
     // Functies voor het updaten van de modus
     function setMode(mode) {
         calculationMode = mode;
@@ -257,6 +313,9 @@
         aMode.classList.toggle('active', mode === 'a');
         bMode.classList.toggle('active', mode === 'b');
         cMode.classList.toggle('active', mode === 'c');
+        aMode.setAttribute('aria-pressed', mode === 'a');
+        bMode.setAttribute('aria-pressed', mode === 'b');
+        cMode.setAttribute('aria-pressed', mode === 'c');
         
         // Controls enablen/disablen
         aControl.classList.toggle('disabled', mode === 'a');
@@ -364,9 +423,16 @@
     }
     
     function drawTriangle() {
-        // Positie van de driehoek binnen het canvas
-        const triangleX = offsetX;
-        const triangleY = offsetY;
+        // Schaal en centreer de volledige figuur, inclusief de drie vierkanten.
+        // De begrenzing is (a + 2b) breed en (2a + b) hoog.
+        const padding = 56;
+        const scale = Math.min(
+            30,
+            (canvas.width - padding * 2) / (a + 2 * b),
+            (canvas.height - padding * 2) / (2 * a + b)
+        );
+        const triangleX = canvas.width / 2 - (a * scale) / 2;
+        const triangleY = canvas.height / 2 + (b * scale) / 2;
         
         // Rechthoekige driehoek tekenen
         ctx.beginPath();
@@ -383,30 +449,20 @@
         // Vierkant a (rood)
         ctx.beginPath();
         ctx.rect(triangleX, triangleY, a * scale, a * scale);
-        ctx.fillStyle = "rgba(231, 76, 60, 0.3)";
+        ctx.fillStyle = "rgba(63, 192, 240, 0.3)";
         ctx.fill();
-        ctx.strokeStyle = "#e74c3c";
+        ctx.strokeStyle = "#3fc0f0";
         ctx.lineWidth = 2;
         ctx.stroke();
-        
-        // Label voor vierkant a
-        ctx.fillStyle = "black";
-        ctx.font = "14px Arial";
-        ctx.fillText(`a² = ${(a * a).toFixed(1)}`, triangleX + (a * scale / 2) - 20, triangleY + (a * scale / 2));
         
         // Vierkant b (blauw)
         ctx.beginPath();
         ctx.rect(triangleX + a * scale, triangleY, b * scale, -b * scale);
-        ctx.fillStyle = "rgba(52, 152, 219, 0.3)";
+        ctx.fillStyle = "rgba(131, 31, 130, 0.24)";
         ctx.fill();
-        ctx.strokeStyle = "#3498db";
+        ctx.strokeStyle = "#831f82";
         ctx.lineWidth = 2;
         ctx.stroke();
-        
-        // Label voor vierkant b
-        ctx.fillStyle = "black";
-        ctx.font = "14px Arial";
-        ctx.fillText(`b² = ${(b * b).toFixed(1)}`, triangleX + a * scale + (b * scale / 2) - 20, triangleY - (b * scale / 2));
         
         // Vierkant c (groen)
         // We moeten eerst de coördinaten voor het vierkant van de schuine zijde berekenen
@@ -417,28 +473,18 @@
         ctx.rotate(-angle);
         ctx.beginPath();
         ctx.rect(0, 0, c * scale, -c * scale);
-        ctx.fillStyle = "rgba(46, 204, 113, 0.3)";
+        ctx.fillStyle = "rgba(230, 0, 126, 0.22)";
         ctx.fill();
-        ctx.strokeStyle = "#2ecc71";
+        ctx.strokeStyle = "#e6007e";
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // Label voor vierkant c
-        ctx.fillStyle = "black";
-        ctx.font = "14px Arial";
-        ctx.fillText(`c² = ${(c * c).toFixed(1)}`, c * scale / 2 - 20, -c * scale / 2);
         ctx.restore();
         
-        // Labels voor zijden van de driehoek
-        ctx.fillStyle = "#e74c3c";
-        ctx.font = "16px Arial bold";
-        ctx.fillText(`a = ${a.toFixed(1)} cm`, triangleX + (a * scale / 2) - 20, triangleY + 20);
-        
-        ctx.fillStyle = "#3498db";
-        ctx.fillText(`b = ${b.toFixed(1)} cm`, triangleX + a * scale + 15, triangleY - (b * scale / 2));
-        
-        ctx.fillStyle = "#2ecc71";
-        ctx.fillText(`c = ${c.toFixed(2)} cm`, triangleX + (a * scale / 2) - 20, triangleY - (b * scale / 3));
+        // Drie rustige waardelabels; de kwadraten staan alleen in de uitleg eronder.
+        drawValueLabel(`a  ${a.toFixed(1)} cm`, triangleX + (a * scale / 2), triangleY - 18, "#1480a8");
+        drawValueLabel(`b  ${b.toFixed(1)} cm`, triangleX + a * scale + 54, triangleY - (b * scale / 2), "#831f82");
+        drawValueLabel(`c  ${c.toFixed(2)} cm`, triangleX + (a * scale / 2) - 34, triangleY - (b * scale / 2) - 24, "#e6007e");
         
         // Rechte hoek indicator
         ctx.beginPath();
@@ -448,6 +494,28 @@
         ctx.strokeStyle = "black";
         ctx.lineWidth = 1;
         ctx.stroke();
+    }
+
+    function drawValueLabel(text, centerX, centerY, color) {
+        ctx.save();
+        ctx.font = "700 14px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const width = ctx.measureText(text).width + 20;
+        const height = 28;
+        const left = centerX - width / 2;
+        const top = centerY - height / 2;
+
+        ctx.beginPath();
+        ctx.roundRect(left, top, width, height, 8);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.94)";
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.fillText(text, centerX, centerY + 0.5);
+        ctx.restore();
     }
     
     // Event listeners
@@ -465,3 +533,4 @@
   </script>
 </body>
 </html>
+
